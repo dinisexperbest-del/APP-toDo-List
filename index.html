@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Elite Ultra | Suite de Produtividade</title>
+
+    <!-- Industry Standard Assets -->
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer crossorigin="anonymous"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    },
+                    borderRadius: { '4xl': '2.5rem' }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="dark">
+    <!-- App Root Container -->
+    <div id="app-root">
+
+        <!-- VIEW: AUTH (Obsidian Cinematic) -->
+        <div id="view-auth" class="view">
+            <div class="auth-card animate-in fade-in zoom-in duration-700">
+                <div class="flex flex-col items-center gap-4 mb-10">
+                    <div
+                        class="w-16 h-16 bg-accent-primary rounded-3xl flex items-center justify-center shadow-lg shadow-accent-primary/20">
+                        <i data-lucide="zap" class="text-white w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black tracking-tighter">PRIORITY ELITE</h1>
+                        <p style="color: #64748b; font-size: 0.9rem; font-weight: 500;">SISTEMA DE ALTA PERFORMANCE</p>
+                    </div>
+                </div>
+
+                <!-- Auth Tabs -->
+                <div class="flex gap-2 p-1 bg-ultra-black border border-border-soft rounded-2xl mb-8">
+                    <button onclick="ui.setAuthMode('login')" id="btn-mode-login"
+                        class="btn-primary flex-grow text-[10px] py-3 rounded-xl bg-accent-primary">LOGIN</button>
+                    <button onclick="ui.setAuthMode('signup')" id="btn-mode-signup"
+                        class="flex-grow text-[10px] py-3 rounded-xl text-slate-500 font-black hover:text-white transition-all">SIGN
+                        UP</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div id="signup-fields" class="hidden">
+                        <input type="text" id="auth-name" placeholder="NOME COMPLETO" class="auth-input">
+                    </div>
+                    <input type="email" id="auth-email" placeholder="EMAIL PROFISSIONAL" class="auth-input">
+                    <input type="password" id="auth-password" placeholder="CHAVE DE ACESSO" class="auth-input">
+                    <div id="confirm-password-field" class="hidden">
+                        <input type="password" id="auth-password-confirm" placeholder="CONFIRMAR CHAVE"
+                            class="auth-input">
+                    </div>
+                    <button id="auth-submit-btn" onclick="auth.handleLocalAuth()" class="btn-primary">INICIAR
+                        MISSÃO</button>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-border-soft">
+                    <div id="google-login-btn" class="flex justify-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: DASHBOARD (Obsidian Workspace) -->
+        <div id="view-dashboard" class="view">
+
+            <!-- Sidebar -->
+            <aside id="sidebar">
+                <div class="flex items-center gap-4 mb-12 px-2">
+                    <div class="w-10 h-10 bg-accent-primary rounded-xl flex items-center justify-center">
+                        <i data-lucide="zap" class="text-white w-5 h-5"></i>
+                    </div>
+                    <span class="font-black tracking-tighter text-xl">ELITE v5</span>
+                </div>
+
+                <nav class="flex-grow">
+                    <button onclick="navigation.setView('tasks')" class="nav-btn active w-full">
+                        <i data-lucide="layout-grid" class="w-5 h-5"></i> Dashboard
+                    </button>
+                    <button onclick="navigation.setView('ai')" class="nav-btn w-full">
+                        <i data-lucide="brain-circuit" class="w-5 h-5"></i> Elite Brain
+                    </button>
+                    <button onclick="navigation.setView('settings')" class="nav-btn w-full">
+                        <i data-lucide="settings" class="w-5 h-5"></i> Definições
+                    </button>
+                </nav>
+
+                <!-- User Quick Info -->
+                <div class="mt-auto p-4 bg-slate-deep border border-border-soft rounded-2xl flex flex-col gap-3">
+                    <div class="flex items-center gap-4">
+                        <img id="user-avatar" src="" class="w-10 h-10 rounded-xl border border-border-bold" alt="">
+                        <div class="overflow-hidden">
+                            <h4 id="user-greeting" class="text-sm font-bold truncate">...</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-accent-warning font-black" id="streak-display">🔥 0
+                                    DIAS</span>
+                                <span class="text-[10px] text-accent-primary font-black" id="user-level">LVL.1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mini XP Bar -->
+                    <div class="h-1 w-full bg-ultra-black rounded-full overflow-hidden">
+                        <div id="xp-bar" class="h-full bg-accent-primary transition-all duration-1000"
+                            style="width: 20%"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Workspace -->
+            <main id="workspace">
+                <div class="workspace-container">
+
+                    <!-- Subview: Tasks -->
+                    <div id="subview-tasks"
+                        class="subview space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h2 class="text-3xl font-black tracking-tight mb-1">Missões Estratégicas</h2>
+                                <p class="text-slate-500 font-medium">Define e executa as tuas prioridades.</p>
+                            </div>
+                            <!-- Stats at a glance -->
+                            <div class="flex gap-4">
+                                <div
+                                    class="bg-obsidian border border-border-soft p-4 rounded-2xl text-center min-w-[100px]">
+                                    <span class="block text-[10px] font-black text-slate-500 uppercase">LVL</span>
+                                    <span class="text-xl font-black text-accent-primary" id="lvl-display-sub">1</span>
+                                </div>
+                                <div
+                                    class="bg-obsidian border border-border-soft p-4 rounded-2xl text-center min-w-[100px]">
+                                    <span class="block text-[10px] font-black text-slate-500 uppercase">XP TOTAL</span>
+                                    <span class="text-xl font-black text-white" id="xp-display-sub">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task Input Area -->
+                        <div class="task-input-container">
+                            <input id="new-todo-text" type="text" placeholder="Qual é a próxima vitória?">
+                            <input type="datetime-local" id="new-todo-date" required
+                                class="bg-transparent text-slate-500 text-xs px-4 focus:outline-none">
+                            <button onclick="todo.handleSubmit(event)"
+                                class="btn-primary w-auto px-8 mx-2 py-3 rounded-xl">CRIAR</button>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="flex gap-2">
+                            <button onclick="state.filter = 'all'; todo.render()"
+                                class="badge text-[10px]">Todas</button>
+                            <button onclick="state.filter = 'active'; todo.render()"
+                                class="badge text-[10px]">Ativas</button>
+                            <button onclick="state.filter = 'completed'; todo.render()"
+                                class="badge text-[10px]">Arquivo</button>
+                        </div>
+
+                        <!-- Todo List -->
+                        <div id="todo-list" class="space-y-4 pt-4">
+                            <!-- Tasks injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Subview: Settings -->
+                    <div id="subview-settings"
+                        class="subview hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 class="text-3xl font-black tracking-tight">Posto de Comando</h2>
+                        <div class="bg-obsidian border border-border-bold rounded-[2.5rem] p-10 space-y-10">
+                            <!-- Avatar Section -->
+                            <div class="flex items-center gap-8 border-b border-border-soft pb-8">
+                                <div class="relative group cursor-pointer" onclick="ui.changeAvatar()">
+                                    <img id="settings-avatar" src=""
+                                        class="w-24 h-24 rounded-2xl border-2 border-accent-primary" alt="">
+                                    <input type="file" id="avatar-upload" accept="image/*" class="hidden"
+                                        onchange="ui.handleAvatarSelect(event)">
+                                    <div
+                                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-2xl transition-all">
+                                        <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <input type="text" id="edit-name" class="auth-input mb-0"
+                                        placeholder="Teu nome de herói">
+                                    <p class="text-xs text-slate-500 mt-2">Personaliza o teu avatar e identidade.</p>
+                                </div>
+                            </div>
+                            <button onclick="auth.updateProfile()" class="btn-primary">GUARDAR ALTERAÇÕES</button>
+                            <button onclick="auth.logout()"
+                                class="text-accent-danger font-bold uppercase tracking-widest text-[10px] mt-4">TERMINAR
+                                SESSÃO</button>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+
+        </button>
+    </div>
+
+    <!-- Global Feedback Systems -->
+    <div id="toast-container" class="fixed bottom-10 right-10 flex flex-col gap-3 pointer-events-none z-50">
+    </div>
+
+    </div>
+
+    <!-- ELITE AI ASSISTANT -->
+    <div id="ai-orb" onclick="aiAssistant.toggle()"
+        class="fixed bottom-14 right-10 w-16 h-16 rounded-full glass-dark border border-primary/50 cursor-pointer z-[80] group flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:scale-110 transition-all duration-300">
+        <div class="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-20"></div>
+        <i data-lucide="bot" class="w-8 h-8 text-primary group-hover:text-white transition-colors"></i>
+    </div>
+
+    <div id="ai-chat-panel"
+        class="fixed bottom-32 right-10 w-96 h-[500px] glass-dark rounded-3xl border border-white/5 shadow-2xl z-[80] flex flex-col hidden origin-bottom-right transition-all duration-300 transform scale-90 opacity-0">
+        <!-- Header -->
+        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                <span class="font-bold tracking-widest text-xs text-slate-400">ELITE <span
+                        class="text-white">CO-PILOT</span></span>
+            </div>
+            <button onclick="aiAssistant.toggle()" class="text-slate-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="ai-messages" class="flex-grow overflow-y-auto p-6 space-y-4 custom-scrollbar">
+            <!-- Intro Message -->
+            <div class="flex gap-4">
+                <div
+                    class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+                    <i data-lucide="bot" class="w-4 h-4 text-primary"></i>
+                </div>
+                <div class="bg-white/5 p-4 rounded-2xl rounded-tl-none border border-white/5 text-sm text-slate-300">
+                    <p>Olá, Comandante. Sou a tua IA Elite.</p>
+                    <p class="mt-2 text-xs text-slate-500">Posso criar tarefas, mudar configurações ou tirar dúvidas.
+                        Experimenta escrever "Ajuda".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-white/5 bg-black/20">
+            <div class="flex gap-2">
+                <button id="ai-voice-btn" onclick="voice.start('ai')"
+                    class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors group relative overflow-hidden">
+                    <i data-lucide="mic" class="w-5 h-5 text-slate-400 group-[.active]:text-primary z-10 relative"></i>
+                    <div
+                        class="absolute inset-0 bg-primary/20 scale-0 group-[.active]:scale-100 transition-transform rounded-xl">
+                    </div>
+                </button>
+                <div class="relative flex-1">
+                    <input type="text" id="ai-input" placeholder="Comando..."
+                        onkeydown="if(event.key === 'Enter') aiAssistant.process()"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl h-12 pl-4 pr-12 text-sm focus:outline-none focus:border-primary/50 transition-all text-white placeholder:text-slate-600">
+                    <button onclick="aiAssistant.process()"
+                        class="absolute right-2 top-2 w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center hover:bg-primary transition-colors group">
+                        <i data-lucide="send" class="w-4 h-4 text-primary group-hover:text-white"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Cinematic Achievement Overlay -->
+        <div id="achievement-reveal" class="glass">
+            <div class="achievement-card-cinematic">
+                <div id="achievement-icon" class="achievement-icon-cinematic">🏆</div>
+                <h2 id="achievement-title" class="achievement-title-cinematic">Meta Atingida</h2>
+                <p id="achievement-desc" class="achievement-desc-cinematic">Parabéns, Comandante. O teu foco é
+                    inabalável.</p>
+                <button onclick="ui.closeAchievement()">CONTINUAR MISSÃO</button>
+            </div>
+        </div>
+
+    </div> <!-- End of app-root -->
+
+    <!-- The Engine -->
+    <script src="main.js"></script>
+</body>
+
+</html>
